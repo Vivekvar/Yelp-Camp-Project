@@ -47,13 +47,26 @@ app.post('/campgrounds', async (req, res) => {
     console.log(title, location);
     const campground = new Campground({ title, location });
     await campground.save();
-    res.redirect('/campgrounds');
+    res.redirect(`/campgrounds/${ campground._id }`);
 })
 
 app.get('/campgrounds/:id', async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
     res.render('campgrounds/show', { campground });
+})
+
+// UPDATE
+app.get('/campgrounds/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    res.render('campgrounds/edit', { campground });
+})
+app.put('/campgrounds/:id', async (req, res) => {
+    const { id } = req.params;
+    const { title, location } = req.body.campground;
+    const campground = await Campground.findByIdAndUpdate(id, { title, location });
+    res.redirect(`/campgrounds/${ campground._id }`);
 })
 
 app.listen(3000, () => {

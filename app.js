@@ -29,7 +29,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.get('', (req, res) => {
-    res.send('HI!');
+    res.send('<h1>Please go to /campgrounds!</h1>');
 })
 
 // READ
@@ -50,6 +50,7 @@ app.post('/campgrounds', async (req, res) => {
     res.redirect(`/campgrounds/${ campground._id }`);
 })
 
+// SHOW
 app.get('/campgrounds/:id', async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);

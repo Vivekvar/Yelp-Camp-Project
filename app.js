@@ -31,6 +31,13 @@ app.set('view engine', 'ejs');
 app.get('', (req, res) => {
     res.send('HI!');
 })
+
+// READ
+app.get('/campgrounds', async (req, res) => {
+    const campgrounds = await Campground.find({});
+    res.render('campgrounds/index', { campgrounds });
+})
+
 app.listen(3000, () => {
     console.log("Listening on port 3000!!!");
 })

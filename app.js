@@ -2,6 +2,10 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
+// Used to dynamically add content to ejs files (convenient than partials).
+const ejsMate = require('ejs-mate');
+app.engine('ejs', ejsMate);
+
 const Campground = require('./models/campground');
 
 const mongoose = require('mongoose');

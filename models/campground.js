@@ -2,9 +2,10 @@ const mongoose = require('mongoose');
 
 const campgroundSchema = new mongoose.Schema({
     title: String,
-    price: String,
+    price: Number,
+    image: String,
     location: String,
-    description: String,
+    description: String
 });
 
 const Campground = mongoose.model('Campground', campgroundSchema);

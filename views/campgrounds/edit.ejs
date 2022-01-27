@@ -3,35 +3,52 @@
 <div class="row">
     <h1 class="text-center">Edit Campground</h1>
     <div class="col-6 offset-3">
-        <form action="/campgrounds/<%=campground._id%>?_method=PUT" method="POST">
+        <!-- novalidate doesn't allow browser to validate itself and hence validation is done using Bootstrap -->
+        <form action="/campgrounds/<%=campground._id%>?_method=PUT" method="POST" novalidate class="check-validation">
             <div class="mb-3">
                 <label class="form-label" for="title">Title</label>
                 <!-- Title will be available using req.body.campground.title -->
                 <input class="form-control" type="text" id="title" name="campground[title]"
-                    value="<%=campground.title %>">
+                    value="<%=campground.title %>" required>
+                <!-- This will add a cute little text 'Valid!' after checking the fields. -->
+                <div class="valid-feedback">
+                    Valid!
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="location">Location</label>
                 <input class="form-control" type="text" id="location" name="campground[location]"
-                    value="<%=campground.location %>">
+                    value="<%=campground.location %>" required>
+                <div class="valid-feedback">
+                    Valid!
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="image">Image Url</label>
                 <input class="form-control" type="text" id="image" name="campground[image]"
-                    value="<%=campground.image %>">
+                    value="<%=campground.image %>" required>
+                <div class="valid-feedback">
+                    Valid!
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="price">Campground Price</label>
                 <div class="input-group">
                     <span class="input-group-text" id="price-label">&#8377;</span>
                     <input type="text" class="form-control" id="price" placeholder="0.00" aria-label="price"
-                        aria-describedby="price-label" name="campground[price]" value="<%=campground.price %>">
+                        aria-describedby="price-label" name="campground[price]" value="<%=campground.price %>" required>
+                    <div class="valid-feedback">
+                        Valid!
+                    </div>
                 </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="description">Description</label>
                 <textarea class="form-control" type="text" id="description"
-                    name="campground[description]"><%= campground.description%></textarea>
+                    name="campground[description]" required><%= campground.description%></textarea>
+                <div class="valid-feedback">
+                    Valid!
+                </div>
             </div>
             <div class="mb-3">
                 <button class="btn btn-info">Update Campground</button>

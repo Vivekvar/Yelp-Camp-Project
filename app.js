@@ -2,7 +2,14 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
-// Used to dynamically add content to ejs files (convenient than partials).
+const expressError = require('./utils/expressError');
+const wrapAsync = require('./utils/wrapAsync');
+
+// Javascript Validator for Schema
+const Joi = require('joi');
+const { campgroundSchema } = require('./schemaValidator');
+
+// Used to dynamically add content to ejs files (convenient than partials) (layouts)
 const ejsMate = require('ejs-mate');
 app.engine('ejs', ejsMate);
 
@@ -37,47 +44,71 @@ app.get('', (req, res) => {
 })
 
 // READ
-app.get('/campgrounds', async (req, res) => {
+app.get('/campgrounds', wrapAsync(async (req, res) => {
     const campgrounds = await Campground.find({});
     res.render('campgrounds/index', { campgrounds });
-})
+}))
+
+const validateCampground = (req, res, next) => {
+    const { error } = campgroundSchema.validate(req.body);
+    if (error) {
+        // error.details is an array.
+        const msg = error.details.map(e => e.message).join(',');
+        throw new expressError(msg, 400); 
+    }
+    else {
+        next();
+    }
+}
 
 // CREATE
 app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new');
 })
-app.post('/campgrounds', async (req, res) => {
+app.post('/campgrounds', validateCampground, wrapAsync(async (req, res) => {
     const { title, location, image, price, description } = req.body.campground;
     const campground = new Campground({ title, location, image, price, description });
     await campground.save();
     res.redirect(`/campgrounds/${ campground._id }`);
-})
+}))
 
 // SHOW
-app.get('/campgrounds/:id', async (req, res) => {
+app.get('/campgrounds/:id', wrapAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
     res.render('campgrounds/show', { campground });
-})
+}))
 
 // UPDATE
-app.get('/campgrounds/:id/edit', async (req, res) => {
+app.get('/campgrounds/:id/edit', wrapAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
     res.render('campgrounds/edit', { campground });
-})
-app.put('/campgrounds/:id', async (req, res) => {
+}))
+app.put('/campgrounds/:id', validateCampground, wrapAsync(async (req, res) => {
     const { id } = req.params;
+    if (!req.body.campground) throw new expressError("Invalid Campground Data", 400); 
     const { title, location, image, price, description } = req.body.campground;
     const campground = await Campground.findByIdAndUpdate(id, { title, location, image, price, description });
     res.redirect(`/campgrounds/${ campground._id }`);
-})
+}))
 
 // DELETE
-app.delete('/campgrounds/:id', async (req, res) => {
+app.delete('/campgrounds/:id', wrapAsync(async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndRemove(id);
     res.redirect('/campgrounds');
+}))
+
+// For all other routes which does not exist.
+app.all('*', (req, res, next) => {
+    next(new expressError('Page not found!', 404));
+})
+
+app.use((err, req, res, next) => {
+    const { statusCode = 500 } = err;
+    if (!err.message) err.message = "Something went wrong, there's an error!";
+    res.status(statusCode).render('error', { err });
 })
 
 app.listen(3000, () => {

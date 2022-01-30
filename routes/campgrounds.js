@@ -1,0 +1,67 @@
+const express = require('express');
+const router = express.Router();
+
+const expressError = require('../utils/expressError');
+const wrapAsync = require('../utils/wrapAsync');
+
+const Campground = require('../models/campground');
+
+const { campgroundSchema } = require('../schemaValidator');
+
+// READ
+router.get('/', wrapAsync(async (req, res) => {
+    const campgrounds = await Campground.find({});
+    res.render('campgrounds/index', { campgrounds });
+}))
+
+const validateCampground = (req, res, next) => {
+    const { error } = campgroundSchema.validate(req.body);
+    if (error) {
+        // error.details is an array.
+        const msg = error.details.map(e => e.message).join(',');
+        throw new expressError(msg, 400); 
+    }
+    else {
+        next();
+    }
+}
+
+// CREATE
+router.get('/new', (req, res) => {
+    res.render('campgrounds/new');
+})
+router.post('/', validateCampground, wrapAsync(async (req, res) => {
+    const { title, location, image, price, description } = req.body.campground;
+    const campground = new Campground({ title, location, image, price, description });
+    await campground.save();
+    res.redirect(`/campgrounds/${ campground._id }`);
+}))
+
+// SHOW
+router.get('/:id', wrapAsync(async (req, res) => {
+    const { id } = req.params;
+    const campground = await Campground.findById(id).populate('reviews');
+    res.render('campgrounds/show', { campground });
+}))
+
+// UPDATE
+router.get('/:id/edit', wrapAsync(async (req, res) => {
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    res.render('campgrounds/edit', { campground });
+}))
+router.put('/:id', validateCampground, wrapAsync(async (req, res) => {
+    const { id } = req.params;
+    const { title, location, image, price, description } = req.body.campground;
+    const campground = await Campground.findByIdAndUpdate(id, { title, location, image, price, description });
+    res.redirect(`/campgrounds/${ campground._id }`);
+}))
+
+// DELETE
+router.delete('/:id', wrapAsync(async (req, res) => {
+    const { id } = req.params;
+    await Campground.findByIdAndDelete(id);
+    res.redirect('/campgrounds');
+}))
+
+module.exports = router;

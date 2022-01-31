@@ -6,6 +6,8 @@ const wrapAsync = require('../utils/wrapAsync');
 
 const Campground = require('../models/campground');
 
+const isLoggedIn = require('../checkAuthentication');
+
 const { campgroundSchema } = require('../schemaValidator');
 
 // READ
@@ -27,10 +29,10 @@ const validateCampground = (req, res, next) => {
 }
 
 // CREATE
-router.get('/new', (req, res) => {
+router.get('/new', isLoggedIn, (req, res) => {
     res.render('campgrounds/new');
 })
-router.post('/', validateCampground, wrapAsync(async (req, res) => {
+router.post('/', isLoggedIn, validateCampground, wrapAsync(async (req, res) => {
     const { title, location, image, price, description } = req.body.campground;
     const campground = new Campground({ title, location, image, price, description });
     await campground.save();
@@ -50,7 +52,7 @@ router.get('/:id', wrapAsync(async (req, res) => {
 }))
 
 // UPDATE
-router.get('/:id/edit', wrapAsync(async (req, res) => {
+router.get('/:id/edit', isLoggedIn, wrapAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
     if (!campground) {
@@ -59,7 +61,7 @@ router.get('/:id/edit', wrapAsync(async (req, res) => {
     }
     res.render('campgrounds/edit', { campground });
 }))
-router.put('/:id', validateCampground, wrapAsync(async (req, res) => {
+router.put('/:id', isLoggedIn, validateCampground, wrapAsync(async (req, res) => {
     const { id } = req.params;
     const { title, location, image, price, description } = req.body.campground;
     const campground = await Campground.findByIdAndUpdate(id, { title, location, image, price, description });
@@ -68,7 +70,7 @@ router.put('/:id', validateCampground, wrapAsync(async (req, res) => {
 }))
 
 // DELETE
-router.delete('/:id', wrapAsync(async (req, res) => {
+router.delete('/:id', isLoggedIn, wrapAsync(async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     req.flash('success', 'Successfully deleted campground!');

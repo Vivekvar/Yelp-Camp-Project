@@ -10,13 +10,18 @@ const { campgroundSchema, reviewSchema } = require('./schemaValidator');
 
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
+const userRoutes = require('./routes/users');
 
 // Used to dynamically add content to ejs files (convenient than partials) (layouts)
 const ejsMate = require('ejs-mate');
 app.engine('ejs', ejsMate);
 
+const passport = require('passport');
+const passportLocal = require('passport-local');
+
 const Campground = require('./models/campground');
 const Review = require('./models/review');
+const User = require('./models/user');
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/yelp-camp', { 
@@ -63,15 +68,26 @@ app.use(session(sessionConfig));
 const flash = require('connect-flash');
 app.use(flash());
 
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new passportLocal(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
+    // Will be undefined if no one is logged in.
+    res.locals.currentUser = req.user;
     next();
 })
 
 app.use('/campgrounds', campgroundRoutes);
 
 app.use('/campgrounds/:id/reviews', reviewRoutes);
+
+app.use('/', userRoutes);
 
 // For all other routes which does not exist.
 app.all('*', (req, res, next) => {

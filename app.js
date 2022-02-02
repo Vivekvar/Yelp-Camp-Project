@@ -2,26 +2,18 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const expressError = require('./utils/expressError');
-const wrapAsync = require('./utils/wrapAsync');
-
 // Javascript Validator for Schema
-const Joi = require('joi');
-const { campgroundSchema, reviewSchema } = require('./schemaValidator');
-
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users');
-
 // Used to dynamically add content to ejs files (convenient than partials) (layouts)
 const ejsMate = require('ejs-mate');
-app.engine('ejs', ejsMate);
-
+const methodOverride = require('method-override');
+const User = require('./models/user');
 const passport = require('passport');
 const passportLocal = require('passport-local');
-
-const Campground = require('./models/campground');
-const Review = require('./models/review');
-const User = require('./models/user');
+const session = require('express-session');
+const flash = require('connect-flash');
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/yelp-camp', { 
@@ -36,23 +28,6 @@ mongoose.connect('mongodb://localhost:27017/yelp-camp', {
         console.log(err);
     })
 
-const methodOverride = require('method-override');
-app.use(methodOverride('_method'));
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-app.use(express.static(path.join(__dirname, 'public')))
-
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-app.get('', (req, res) => {
-    res.send('<h1>Please go to /campgrounds!</h1>');
-})
-
-
-const session = require('express-session');
 const sessionConfig = {
     secret: 'asecrettokeep',
     resave: false,
@@ -63,15 +38,22 @@ const sessionConfig = {
         maxAge: 1000 * 60 * 60 * 24 * 7,
     }
 }
+
+app.engine('ejs', ejsMate);
+
+app.use(methodOverride('_method'));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')))
 app.use(session(sessionConfig));
-
-const flash = require('connect-flash');
 app.use(flash());
-
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new passportLocal(User.authenticate()));
 
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+passport.use(new passportLocal(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
@@ -83,10 +65,12 @@ app.use((req, res, next) => {
     next();
 })
 
+app.get('', (req, res) => {
+    res.send('<h1>Please go to /campgrounds!</h1>');
+})
+
 app.use('/campgrounds', campgroundRoutes);
-
 app.use('/campgrounds/:id/reviews', reviewRoutes);
-
 app.use('/', userRoutes);
 
 // For all other routes which does not exist.

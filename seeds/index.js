@@ -33,7 +33,11 @@ const seedDB = async () => {
             ],
             description: "A very good place to camp. Would suggest everyone to visit once.",
             price,
-            author: "61f824dcded4d35341763dd5"
+            author: "61f824dcded4d35341763dd5",
+            geometry: {
+                type: 'Point',
+                coordinates: [ 78.08, 27.88 ]
+            }
         })
         await camp.save();
     }

@@ -27,8 +27,12 @@ const seedDB = async () => {
             title: `${sample(descriptors)} ${sample(places)}`,
             images:  [
                 {
-                  url: 'https://res.cloudinary.com/vivekcloud/image/upload/v1643914740/Yelp-Camp/y7znebydcgybjx4379vd.jpg',
-                  filename: 'Yelp-Camp/y7znebydcgybjx4379vd',
+                    url: 'https://res.cloudinary.com/vivekcloud/image/upload/v1644140442/Yelp-Camp/evfgu2fdhhqjmdiu95k9.jpg',
+                    filename: 'Yelp-Camp/evfgu2fdhhqjmdiu95k9',
+                },
+                {
+                    url: 'https://res.cloudinary.com/vivekcloud/image/upload/v1644174326/Yelp-Camp/aa0idqmqninltl7ogrwu.jpg',
+                    filename: 'Yelp-Camp/aa0idqmqninltl7ogrwu',
                 }
             ],
             description: "A very good place to camp. Would suggest everyone to visit once.",

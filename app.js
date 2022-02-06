@@ -69,8 +69,8 @@ app.use((req, res, next) => {
     next();
 })
 
-app.get('', (req, res) => {
-    res.send('<h1>Please go to /campgrounds!</h1>');
+app.get('/', (req, res) => {
+    res.render('home');
 })
 
 app.use('/campgrounds', campgroundRoutes);

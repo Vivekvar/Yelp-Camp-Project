@@ -9,6 +9,9 @@ It is a web application where different users(read campers) can put in their com
 
 <h2> Live Demo </h2>
 Got to https://frozen-waters-11960.herokuapp.com/
+Username - user12345
+Password - 12345
+
 <h2> Features </h2>
 <ul>
   <li>Authentication - Before creating/reviewing a campground, user needs to login/register. Authentication is handled using passport.js </li>

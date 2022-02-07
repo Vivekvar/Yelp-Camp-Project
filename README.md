@@ -9,7 +9,9 @@ It is a web application where different users(read campers) can put in their com
 
 <h2> Live Demo </h2>
 Got to https://frozen-waters-11960.herokuapp.com/
+<br>
 Username - user12345
+<br>
 Password - 12345
 
 <h2> Features </h2>
